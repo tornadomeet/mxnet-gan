@@ -2,6 +2,7 @@ import logging
 import numpy as np
 import mxnet as mx
 import sys
+import cv2
 
 sys.path.append("..")
 
@@ -18,7 +19,7 @@ batch_size = 100
 rand_shape = (batch_size, 100)
 num_epoch = 100
 data_shape = (batch_size, 1, 28, 28)
-context = mx.gpu()
+context = mx.cpu()
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)-15s %(message)s')
 sym_gen = generator.dcgan28x28(oshape=data_shape, ngf=32, final_act="sigmoid")
@@ -40,7 +41,7 @@ gmod.init_optimizer(
         "beta1": beta1,
 })
 
-data_dir = './../../mxnet/example/image-classification/mnist/'
+data_dir = '/Users/tornadomeet/project/dmlc/mxNet/example/image-classification/data/'
 train = mx.io.MNISTIter(
     image = data_dir + "train-images-idx3-ubyte",
     label = data_dir + "train-labels-idx1-ubyte",
@@ -62,9 +63,11 @@ for epoch in range(num_epoch):
 
         if t % 100 == 0:
             logging.info("epoch: %d, iter %d, metric=%s", epoch, t, metric_acc.get())
-
-            viz.imshow("gout", gmod.temp_outG[0].asnumpy(), 2)
+            gdata = gmod.temp_outG[0].asnumpy()
+            viz.imshow("gout", gdata, 2)
             diff = gmod.temp_diffD[0].asnumpy()
             diff = (diff - diff.mean()) / diff.std() + 0.5
             viz.imshow("diff", diff)
             viz.imshow("data", batch.data[0].asnumpy(), 2)
+            if epoch == num_epoch -1:
+                cv2.imsave("epcho-{}-iter-{}".format(epoch, t), gdata)

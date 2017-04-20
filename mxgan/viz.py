@@ -35,3 +35,9 @@ def imshow(title, X, waitsec=1, flip=False):
     buff = layout(X, flip=flip)
     cv2.imshow(title, buff)
     cv2.waitKey(waitsec)
+
+def imsave(title, X, flip=False):
+    """Save images in X to disk.
+    """
+    buff = layout(X, flip=flip)
+    cv2.imwrite(title, buff)
